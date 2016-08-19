@@ -1,0 +1,41 @@
+{
+  "name": "bpmnjs-token-simulation",
+  "version": "0.0.1",
+  "description": "An example how to use bpmn-js for token-simulation",
+  "main": "app/app.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/camunda-consulting/snippets/bpmnjs-token-simulation"
+  },
+  "keywords": [
+    "bpmnjs-example"
+  ],
+  "author": {
+    "name": "Felix Mueller",
+    "url": "https://github.com/felix-mueller"
+  },
+  "contributors": [
+    {
+      "name": "bpmn.io contributors",
+      "url": "https://github.com/bpmn-io"
+    }
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "grunt": "~1.0.1",
+    "brfs": "^1.2.0",
+    "grunt-browserify": "^5.0.0",
+    "grunt-contrib-watch": "~1.0.0",
+    "grunt-contrib-connect": "~1.0.2",
+    "grunt-contrib-jshint": "~1.0.0",
+    "grunt-contrib-copy": "~1.0.0",
+    "load-grunt-tasks": "~3.5.0"
+  },
+  "dependencies": {
+    "bpmn-js": "^0.15.0",
+    "lodash": "^4.13.1",
+    "jquery": "2.2.0",
+    "velocity-animate": "1.2.3",
+    "velocity-ui-pack": "1.2.2"
+  }
+}
