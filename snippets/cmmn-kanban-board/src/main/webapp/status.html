@@ -72,6 +72,8 @@
 <link type="text/css" rel="stylesheet"
 	href="webjars/bpmn-js/0.13.1/dist/assets/bpmn-font/css/bpmn-embedded.css" />
 <link type="text/css" rel="stylesheet" href="resources/css/modeler.css" />
+ <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
+  <link rel="stylesheet" href="/resources/demos/style.css">
 
 
 <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
@@ -81,25 +83,52 @@
 <body>
 	<div class="container-fluid">
 		<h1>CMMN Kanban Board</h1>
+		<hr />
 		<div class="row">
 			<div class="col-md-3">
-				<h3 class="bg-info">Available</h3>
-				<ul id="availableExecutions"></ul>
+        <div class="panel panel-default">
+          <div class="panel-heading">Available</div>
+          <div class="panel-body">
+            <ul id="availableExecutions" class="connectedSortable">
+            </ul>
+          </div>
+        </div>
 			</div>
 			<div class="col-md-3">
-				<h3 class="bg-info">Enabled</h3>
+		    <div class="panel panel-info">
+		      <div class="panel-heading">Enabled</div>
+		      <div class="panel-body">
 				<ul id="enabledExecutions" class="connectedSortable">
 				</ul>
 			</div>
+		    </div>
+			</div>
 			<div class="col-md-3">
-				<h3 class="bg-primary">Active</h3>
+        <div class="panel panel-primary">
+          <div class="panel-heading">Active</div>
+          <div class="panel-body">
 				<ul id="activeExecutions" class="connectedSortable">
 				</ul>
 			</div>
+        </div>
+			</div>
 			<div class="col-md-3">
-				<h3 class="bg-success">Completed</h3>
-				<ul id="completedExecutions">
+        <div class="panel panel-success">
+          <div class="panel-heading">Completed</div>
+          <div class="panel-body">
+				<ul id="completedExecutions" class="connectedSortable">
 				</ul>
+			</div>
+		</div>
+	</div>
+		</div>
+    <br />
+    <br />
+    <br />
+		<div class="panel panel-default">
+		  <div class="panel-heading">CMMN Task Lifecycle</div>
+		  <div class="panel-body">
+		    <img src="https://docs.camunda.org/manual/7.5/reference/cmmn11/concepts/img/TaskStageLifecycle.png" />
 			</div>
 		</div>
 	</div>
@@ -112,53 +141,38 @@
 	    // get URL query parameter
 		function getParameterByName(name) {
 		    var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+
 		    return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
 		}				    
+		
     var caseInstanceId = getParameterByName('caseInstanceId');       
     var executions = [];     
+    	var cssClassesForCmmnActivityTypes = {
+    			'milestone':'cmmn-icon-milestone', 
+    			'stage':'cmmn-icon-stage-collapsed',
+    		   	'casePlanModel':'cmmn-icon-case-plan-model',
+    		   	'humanTask':'cmmn-icon-human-blocking-task',
+    		   	'processTask':'cmmn-icon-process-task'
+    			
+    	 };
 	
 		var restAccess = '/engine-rest';
 		
 		function populateList(list, caseExecutions) {
-	    var items = [];
-	    $.each(caseExecutions, function (id, caseExecution) {
-		    if(caseExecution.activityType == 'milestone') {
-	    	 items.push('<li><span class="cmmn-icon-milestone">' + (caseExecution.activityName ? caseExecution.activityName : caseExecution.caseActivityName) + '</span></li>');
-		    } else if(caseExecution.activityType == 'stage') {
-		    	 items.push('<li><span class="cmmn-icon-stage-collapsed">' + (caseExecution.activityName ? caseExecution.activityName : caseExecution.caseActivityName) + '</span></li>');
-		    } else if(caseExecution.activityType == 'casePlanModel') {
-		    	 items.push('<li><span class="cmmn-icon-case-plan-model">' + (caseExecution.activityName ? caseExecution.activityName : caseExecution.caseActivityName) + '</span></li>');
-		    } else if(caseExecution.activityType == 'humanTask') {
-		    	 items.push('<li><span class="cmmn-icon-human-blocking-task">' + (caseExecution.activityName ? caseExecution.activityName : caseExecution.caseActivityName) + '</span></li>');
-		    } else if(caseExecution.activityType == 'processTask') {
-		    	 items.push('<li><span class="cmmn-icon-process-task">' + (caseExecution.activityName ? caseExecution.activityName : caseExecution.caseActivityName) + '</span></li>');
-		    } else {
-		    	 items.push('<li>' + (caseExecution.activityName ? caseExecution.activityName : caseExecution.caseActivityName) + '</li>');
-		    }			    
 
+	    var items = [];
+
+	    $.each(caseExecutions, function (id, caseExecution) {
+
+		    	if(cssClassesForCmmnActivityTypes[caseExecution.activityType] != undefined) {
+	    	 		items.push('<li class="ui-state-default"><span class="' + cssClassesForCmmnActivityTypes[caseExecution.activityType] + '">' + (caseExecution.activityName ? caseExecution.activityName : caseExecution.caseActivityName) + '</span></li>');
+		    	} else if(cssClassesForCmmnActivityTypes[caseExecution.caseActivityType] != undefined) {
+	    	 		items.push('<li class="ui-state-default"><span class="' + cssClassesForCmmnActivityTypes[caseExecution.caseActivityType] + '">' + caseExecution.caseActivityName + '</span></li>');
+		    	} else 	{
+	    	 items.push('<li class="ui-state-default">' + (caseExecution.activityName ? caseExecution.activityName : caseExecution.caseActivityName) + '</li>');
+			   	}
 	    });  
 
-	    list.html(items.join(''));
-	  }
-
-		function populateHistoryList(list, caseExecutions) {
-		    var items = [];
-		    $.each(caseExecutions, function (id, caseExecution) {
-			    if(caseExecution.caseActivityType == 'milestone') {
-		    	 items.push('<li><span class="cmmn-icon-milestone">' + (caseExecution.activityName ? caseExecution.activityName : caseExecution.caseActivityName) + '</span></li>');
-			    } else if(caseExecution.caseActivityType == 'stage') {
-			    	 items.push('<li><span class="cmmn-icon-stage-collapsed">' + (caseExecution.activityName ? caseExecution.activityName : caseExecution.caseActivityName) + '</span></li>');
-			    } else if(caseExecution.caseActivityType == 'casePlanModel') {
-			    	 items.push('<li><span class="cmmn-icon-case-plan-model">' + (caseExecution.activityName ? caseExecution.activityName : caseExecution.caseActivityName) + '</span></li>');
-			    } else if(caseExecution.caseActivityType == 'humanTask') {
-			    	 items.push('<li><span class="cmmn-icon-human-blocking-task">' + (caseExecution.activityName ? caseExecution.activityName : caseExecution.caseActivityName) + '</span></li>');
-			    } else if(caseExecution.caseActivityType == 'processTask') {
-			    	 items.push('<li><span class="cmmn-icon-process-task">' + (caseExecution.activityName ? caseExecution.activityName : caseExecution.caseActivityName) + '</span></li>');
-			    } else {
-			    	 items.push('<li>' + (caseExecution.activityName ? caseExecution.activityName : caseExecution.caseActivityName) + '</li>');
-			    }			    
-		    });  
-		    
 	    list.html(items.join(''));
 	  }
 		
@@ -168,7 +182,7 @@
 	    $.get(restAccess + '/case-execution/?active=true&caseInstanceId=' + caseInstanceId, function(activeExecutions) {
 	      populateList($("#activeExecutions"), activeExecutions)}); */
 	    $.get(restAccess + '/history/case-activity-instance?completed=true&caseInstanceId=' + caseInstanceId, function(completedExecutions) {
-	    	populateHistoryList($("#completedExecutions"), completedExecutions)});
+	      populateList($("#completedExecutions"), completedExecutions)});
 
 
 
